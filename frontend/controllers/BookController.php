@@ -2,14 +2,13 @@
 
 namespace frontend\controllers;
 
+use common\components\book\BookDto;
+use common\repositories\BookRepository;
 use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
-use app\models\Book;
-use app\models\Author;
-use yii\web\NotFoundHttpException;
 
-class BookController extends Controller
+final class BookController extends Controller
 {
     public function behaviors()
     {
@@ -17,73 +16,59 @@ class BookController extends Controller
             'access' => [
                 'class' => AccessControl::class,
                 'rules' => [
-                    ['actions' => ['index', 'view', 'top-authors'], 'allow' => true],
+                    ['actions' => ['index', 'view'], 'allow' => true],
                     ['actions' => ['create', 'update', 'delete'], 'allow' => true, 'roles' => ['@']],
                 ],
             ],
         ];
     }
 
+    public function __construct(
+        $id,
+        $module,
+        $config = [],
+        public BookRepository $repository
+    )
+    {
+        return parent::__construct($id, $module, $config);
+    }
+
     public function actionIndex()
     {
-        return $this->asJson(Book::find()->with('authors')->all());
+        return $this->render('index', ['books' => $this->repository->getList()]);
     }
 
     public function actionView($id)
     {
-        $book = Book::find()->where(['id' => $id])->with('authors')->one();
-        if (!$book) throw new NotFoundHttpException('Книга не найдена.');
-        return $this->asJson($book);
+        return $this->render('view', ['book' => $this->repository->getById($id)]);
     }
 
-    public function actionCreate()
+    public function actionStore()
     {
-        $model = new Book();
-        $data = Yii::$app->request->post();
-        $model->load($data, '');
-        if ($model->save()) {
-            if (!empty($data['author_ids'])) {
-                foreach ($data['author_ids'] as $authorId) {
-                    Yii::$app->db->createCommand()
-                        ->insert('book_author', ['book_id' => $model->id, 'author_id' => $authorId])
-                        ->execute();
-                }
-            }
-            return $this->asJson(['status' => 'ok', 'book_id' => $model->id]);
-        }
-        return $this->asJson($model->errors);
+        $result = $this->repository->store(new BookDto(
+            title: Yii::$app->request->post('title'),
+            description: Yii::$app->request->post('description'),
+            isbn: Yii::$app->request->post('isbn'),
+            year: Yii::$app->request->post('year'),
+        ));
+
+        return $this->goBack();
     }
 
     public function actionUpdate($id)
     {
-        $model = Book::findOne($id);
-        if (!$model) throw new NotFoundHttpException('Не найдено');
-
-        $model->load(Yii::$app->request->post(), '');
-        if ($model->save()) return $this->asJson(['status' => 'updated']);
-        return $this->asJson($model->errors);
+        $result = $this->repository->update($id, new BookDto(
+            title: Yii::$app->request->post('title'),
+            description: Yii::$app->request->post('description'),
+            isbn: Yii::$app->request->post('isbn'),
+            year: Yii::$app->request->post('year'),
+        ));
+        return $this->goBack();
     }
 
     public function actionDelete($id)
     {
-        $model = Book::findOne($id);
-        if (!$model) throw new NotFoundHttpException('Не найдено');
-        $model->delete();
-        return $this->asJson(['status' => 'deleted']);
-    }
-
-    public function actionTopAuthors($year)
-    {
-        $top = Author::find()
-            ->select(['authors.id', 'authors.full_name', 'COUNT(books.id) AS books_count'])
-            ->joinWith('books')
-            ->where(['books.year' => $year])
-            ->groupBy('authors.id')
-            ->orderBy(['books_count' => SORT_DESC])
-            ->limit(10)
-            ->asArray()
-            ->all();
-
-        return $this->asJson($top);
+        $this->repository->delete($id);
+        return $this->goBack();
     }
 }

@@ -8,9 +8,9 @@ class BookResource
         public int $id,
         public string $title,
         public ?string $description,
-        public string $author,
-        public string $year,
-        public ?string $isbn,
-        public ?string $image,
+        public ?AuthorResource $author = null,
+        public int $year,
+        public ?string $isbn = null,
+        public ?string $image = null,
     ) {}
 }
