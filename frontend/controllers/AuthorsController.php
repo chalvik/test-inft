@@ -1,13 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace frontend\controllers;
 
+use common\repositories\AuthorsRepository;
 use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
-use app\models\Book;
-use app\models\Author;
-use yii\web\NotFoundHttpException;
 
 final class AuthorsController extends Controller
 {
@@ -27,7 +26,7 @@ final class AuthorsController extends Controller
         $id,
         $module,
         $config = [],
-        public AuthorRepository $repository
+        public AuthorsRepository $repository
     ){}
 
     public function actionTopAuthors($year)

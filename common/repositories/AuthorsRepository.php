@@ -22,7 +22,7 @@ class AuthorsRepository
         );
     }
 
-    public function getListNewForLastDay(int $year): array
+    public function getTopAuthors(int $year): array
     {
         $authors =  Author::find()
             ->select(['authors.*', 'COUNT(books.id) AS books_count'])
