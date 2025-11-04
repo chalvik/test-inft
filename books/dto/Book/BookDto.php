@@ -18,6 +18,7 @@ class BookDto
         return new self(
             title: $data['title'],
             description: $data['description'],
+            authors: $data['authors'],
             isbn: $data['isbn'],
             year: $data['year'],
             image: $data['image'],
