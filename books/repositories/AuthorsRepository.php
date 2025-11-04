@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace common\repositories;
+namespace books\repositories;
 
-use common\models\Author;
-use common\resources\AuthorResource;
+use books\models\Author;
+use books\resources\AuthorResource;
 use yii\web\NotFoundHttpException;
 
 class AuthorsRepository
@@ -13,13 +13,7 @@ class AuthorsRepository
     {
         $model = Author::findOne($id);
         if (!$model) throw new NotFoundHttpException('Не найдено');
-
-        return new AuthorResource(
-            id: $model->id,
-            firstName: $model->firstname,
-            lastName: $model->lastname,
-            patronymic: $model->patronymic,
-        );
+        return AuthorResource::fromModel($model);
     }
 
     public function getTopAuthors(int $year): array
@@ -31,15 +25,10 @@ class AuthorsRepository
             ->groupBy('authors.id')
             ->orderBy(['books_count' => SORT_DESC])
             ->limit(10)
-            ->asArray()
             ->all();
 
-        return array_map(fn($author) => new AuthorResource(
-                id: $author['id'],
-                firstName: $author['firstname'],
-                lastName: $author['lastname'],
-                patronymic: $author['patronymic'],
-            ),
+        return array_map(
+            fn(Author $author) => AuthorResource::fromModel($author),
             $authors
         );
     }

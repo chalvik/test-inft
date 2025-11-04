@@ -1,24 +1,23 @@
-Разворачивание проекта 
+>Разворачивание проекта 
+
+copy .env-example  .env
 
 make up
+make vendor
+make php-init
 
-Запуск уведомлений: ( В кроне 1 раз в сутки  )
+
+>Запуск уведомлений: ( В кроне 1 раз в сутки )
+
 php yii notify/subscribers
 
+>Помощь по коду 
 
-Помощь по коду 
+>контроллеры 
+>> /frontend/controllers
+ 
+>> /console/controllers
 
+>Модели репозитории ресурсы и dto
 
-/common/models/Book
-/common/models/Author
-/common/models/Subscribe
-
-
-репозитории 
-/common/repositories 
-
-BookRepository
-SubscribeRepository
-
-сервисы
-/common/services 
+>>/books

@@ -1,6 +1,8 @@
 USER_ID := $(shell id -u)
 GROUP_ID := $(shell id -g)
 
+php-init:
+	docker compose exec php-infotech php init
 build:
 	docker compose up --build
 up:

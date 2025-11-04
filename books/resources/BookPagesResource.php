@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 
-namespace common\resources;
+namespace books\resources;
+
 class BookPagesResource
 {
     private array $books;

@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use interface\SmsInterface;
+namespace books\services\SMS;
+
+use books\services\SMS\interface\SmsInterface;
 
 final class SmsProvider implements SmsInterface
 {

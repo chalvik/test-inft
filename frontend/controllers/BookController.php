@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace frontend\controllers;
 
-use common\components\book\BookDto;
-use common\repositories\BookRepository;
+use books\dto\Book\BookDto;
+use books\forms\FormBook;
+use books\repositories\BookRepository;
 use Yii;
-use yii\web\Controller;
 use yii\filters\AccessControl;
+use yii\web\Controller;
 
 final class BookController extends Controller
 {
@@ -31,7 +32,7 @@ final class BookController extends Controller
         public BookRepository $repository
     )
     {
-        return parent::__construct($id, $module, $config);
+        parent::__construct($id, $module, $config);
     }
 
     public function actionIndex()
@@ -39,35 +40,35 @@ final class BookController extends Controller
         return $this->render('index', ['books' => $this->repository->getList()]);
     }
 
-    public function actionView($id)
+    /**
+     * @param $id
+     * @return string
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView(int $id)
     {
         return $this->render('view', ['book' => $this->repository->getById($id)]);
     }
 
     public function actionStore()
     {
-        $result = $this->repository->store(new BookDto(
-            title: Yii::$app->request->post('title'),
-            description: Yii::$app->request->post('description'),
-            isbn: Yii::$app->request->post('isbn'),
-            year: Yii::$app->request->post('year'),
-        ));
-
+        $formModel = new FormBook();
+        if ($formModel->load(Yii::$app->request->post()) && $formModel->validate()) {
+            $this->repository->store(BookDto::fromArray(Yii::$app->request->post()));
+        }
         return $this->goBack();
     }
 
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
-        $result = $this->repository->update($id, new BookDto(
-            title: Yii::$app->request->post('title'),
-            description: Yii::$app->request->post('description'),
-            isbn: Yii::$app->request->post('isbn'),
-            year: Yii::$app->request->post('year'),
-        ));
+        $formModel = new FormBook();
+        if ($formModel->load(Yii::$app->request->post()) && $formModel->validate()) {
+            $this->repository->update($id, BookDto::fromArray(Yii::$app->request->post()));
+        }
         return $this->goBack();
     }
 
-    public function actionDelete($id)
+    public function actionDelete(int $id)
     {
         $this->repository->delete($id);
         return $this->goBack();

@@ -1,54 +1,34 @@
 <?php
 declare(strict_types=1);
 
-namespace common\repositories;
+namespace books\repositories;
 
-use common\components\book\BookDto;
-use common\models\Book;
-use common\resources\AuthorResource;
-use common\resources\BookResource;
+use books\models\Author;
 use Yii;
+use books\dto\Book\BookDto;
+use books\models\Book;
+use books\resources\BookResource;
 use yii\web\NotFoundHttpException;
 
 class BookRepository
 {
+    /**
+     * @param int $id
+     * @return BookResource
+     * @throws NotFoundHttpException
+     */
     public function getById(int $id): BookResource
     {
         $model = $this->getModelById($id);
-
-        $author = new AuthorResource(
-            id: $model->author->id,
-            firstName: $model->author->firstname,
-            lastName: $model->author->lastname,
-            patronymic: $model->author->firstname
-        );
-        return new BookResource(
-            id: $model->id,
-            title: $model->title,
-            description: $model->description,
-            author: $author,
-            year: $model->year,
-            isbn: $model->isbn,
-            image: $model->image,
-        );
+        return BookResource::fromModel($model);
     }
 
     public function getList(): array
     {
         $books =  Book::find()
-            ->asArray()
+            ->with('authors')
             ->all();
-
-        return array_map(fn($book) => new BookResource(
-            id: $book['id'],
-            title: $book['title'],
-            description: $book['description'],
-            year: $book['year'],
-            isbn: $book['isbn'],
-            image: $book['image'],
-        ),
-            $books
-        );
+        return array_map(fn($book) => BookResource::fromModel($book), $books);
     }
 
     public function getListNewForLastDay(): array
@@ -62,16 +42,27 @@ class BookRepository
      */
     public function store(BookDto $dto): bool
     {
-        $result = false;
+        $result = true;
         try {
             $model = new Book();
             $model->title = $dto->title;
             $model->description = $dto->description;
             $model->isbn = $dto->isbn;
             $model->image = $dto->image;
-            $result =  $model->save();
+            $model->save();
+
+            if ($dto->authors) {
+                foreach ($dto->authors as $authorId) {
+                    $author = Author::findOne($authorId);
+                    if ($author) {
+                        $model->link('authors', $author);
+                    }
+                }
+            }
+
         } catch (\Exception $exception) {
-            Yii::error($exception->getMessage());;
+            $result =  false;
+            Yii::error($exception->getMessage());
         }
 
         return $result;
@@ -83,15 +74,16 @@ class BookRepository
      */
     public function update(int $id, BookDto $dto): bool
     {
-        $result = false;
+        $result = true;
         try {
             $model = Book::findOne($id);
             $model->title = $dto->title;
             $model->description = $dto->description;
             $model->isbn = $dto->isbn;
             $model->image = $dto->image;
-            $result =  $model->save();
+            $model->save();
         } catch (\Exception $exception) {
+            $result = false;
             Yii::error($exception->getMessage());;
         }
 

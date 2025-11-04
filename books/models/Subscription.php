@@ -1,7 +1,8 @@
 <?php
 
-namespace common\models;
+namespace books\models;
 
+use common\models\User;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 

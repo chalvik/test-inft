@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace frontend\controllers;
 
-use common\repositories\AuthorsRepository;
-use Yii;
-use yii\web\Controller;
+use books\repositories\AuthorsRepository;
 use yii\filters\AccessControl;
+use yii\web\Controller;
 
 final class AuthorsController extends Controller
 {
@@ -27,13 +26,16 @@ final class AuthorsController extends Controller
         $module,
         $config = [],
         public AuthorsRepository $repository
-    ){}
+    )
+    {
+        parent::__construct($id, $module, $config);
+    }
 
     public function actionTopAuthors($year)
     {
         return $this->view(
             'authors.top-authors', [
-                'authors' => $this->repository->getTopAuthors($year),
+            'authors' => $this->repository->getTopAuthors($year),
         ]);
     }
 }

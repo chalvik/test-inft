@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace interface;
+namespace books\services\SMS\interface;
 
 interface SmsInterface
 {

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace console\controllers;
 
+use books\models\Book;
 use yii\console\Controller;
-use common\models\Book;
 
 class NotifyController extends Controller
 {

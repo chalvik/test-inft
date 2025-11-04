@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace common\models;
+namespace books\models;
 
 use yii\db\ActiveRecord;
 
