@@ -33,7 +33,10 @@ class BookRepository
 
     public function getListNewForLastDay(): array
     {
-        return [];
+        return Book::find()
+            ->where(['>', 'created_at', date('Y-m-d H:i:s', strtotime('-1 day'))])
+            ->with('authors.subscriptions')
+            ->all();
     }
 
     /**

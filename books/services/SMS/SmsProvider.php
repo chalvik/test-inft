@@ -7,5 +7,8 @@ use books\services\SMS\interface\SmsInterface;
 
 final class SmsProvider implements SmsInterface
 {
-
+    public function send(string $phone): void
+    {
+        echo "тут реализуем отправку ";
+    }
 }

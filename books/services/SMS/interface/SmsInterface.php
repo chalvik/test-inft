@@ -5,5 +5,5 @@ namespace books\services\SMS\interface;
 
 interface SmsInterface
 {
-
+    public function send(string $phone): void;
 }
